@@ -1,0 +1,19 @@
+server:
+  port: 18080
+
+
+spring:
+  profiles:
+    active: online
+
+
+
+
+#h2:
+#  accessKey: LTAI4FwUdY5iMLmSpMVbGJfR
+#  accessSecret: FDhnOBn7UM97CELlaEaL7Zr62vfL7v
+#  uid: 1728448142547926
+#  regionId: cn-shanghai
+
+
+

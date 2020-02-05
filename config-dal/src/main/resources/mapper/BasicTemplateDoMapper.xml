@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bora.basic.dal.dao.BasicTemplateMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.bora.basic.dal.domain.BasicTemplateDo">
+        <id column="id" property="id" />
+        <result column="field_key" property="fieldKey" />
+        <result column="field_name" property="fieldName" />
+        <result column="field_type" property="fieldType" />
+        <result column="field_status" property="fieldStatus" />
+        <result column="field_attr" property="fieldAttr" />
+        <result column="description" property="description" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, field_key, field_name, field_type, field_status, field_attr, description
+    </sql>
+
+</mapper>
