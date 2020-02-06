@@ -18,12 +18,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-/***
+/**
  *Ticket: 租户模板表
  * @author 赵威
  * @email wangjialei@boranet.com.cn
  * @Date: 2020-02-06 09:52:03
- *****/
+ */
 @RestController
 @RequestMapping("/basic/template")
 public class BasicTemplateController {
@@ -94,7 +94,7 @@ public class BasicTemplateController {
     public boolean saveToDefine(@RequestParam("tenantId") Integer tenantId) {
         //查询条件为tenant
         QueryWrapper<BasicTemplateDo> wrapper = new QueryWrapper<>();
-        wrapper.eq("tenantId",tenantId);
+        wrapper.eq("tenant_id",tenantId);
         //根据tenant得到模板中的list数据
         Collection<BasicTemplateDo> basicTemplateList = basicTemplateService.list(wrapper);
 
