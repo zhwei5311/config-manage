@@ -113,7 +113,7 @@ public class MaterialDataController {
      * @return
      */
     @GetMapping("/getMaterialName")
-    public List<MaterialDataDo> getMaterialName(@RequestParam(value = "tenantId",required = false, defaultValue = "null") Integer tenantId) {
+    public List<MaterialDataDo> getMaterialName(@RequestBody Integer tenantId) {
         QueryWrapper<MaterialDataDo> wrapper = new QueryWrapper<>();
         wrapper.select("com_code","com_name");
         wrapper.eq("tenant_id",tenantId);
