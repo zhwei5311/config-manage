@@ -82,7 +82,7 @@ public class MaterialDataController {
     @GetMapping("/listByPage")
     public IPage<MaterialDataDo> listMaterialData(@RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
                                  @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
-                                 @RequestParam(value = "tenantId",required = false, defaultValue = "null") Integer tenantId ) {
+                                 @RequestParam(value = "tenantId",required = false, defaultValue = "null") Integer tenantId) {
         //添加查询条件：租户和是否显示
         QueryWrapper<BasicDefineDo> wrapper = new QueryWrapper<>();
         wrapper.eq("tenant_id",tenantId);
@@ -105,6 +105,18 @@ public class MaterialDataController {
         queryWrapper.select(fields);
         IPage<MaterialDataDo> page = new Page<>(pageIndex, pageSize);
         return iMaterialDataService.page(page,queryWrapper);
+    }
+
+    /**
+     * 获取所有的物料名称
+     * @param tenantId
+     * @return
+     */
+    @GetMapping("/getMaterialName")
+    public List<MaterialDataDo> getMaterialName(@RequestParam(value = "tenantId",required = false, defaultValue = "null") Integer tenantId) {
+        QueryWrapper<MaterialDataDo> wrapper = new QueryWrapper<>();
+        wrapper.eq("tenant_id",tenantId);
+        return iMaterialDataService.list(wrapper);
     }
 
 }

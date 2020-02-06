@@ -85,6 +85,4 @@ public class MaterialDataDo implements Serializable {
     @ApiModelProperty(value = "自定义字段")
     private JSONObject extInfo;
 
-    @ApiModelProperty(value = "字段名")
-    private String fieldName;
 }
