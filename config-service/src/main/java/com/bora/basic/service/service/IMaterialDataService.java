@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
  * <p>
- *  服务类
+ * 服务类
  * </p>
  *
  * @author wangjialei
@@ -13,4 +13,4 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IMaterialDataService extends IService<MaterialDataDo> {
 
-        }
+}
