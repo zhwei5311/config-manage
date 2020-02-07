@@ -19,7 +19,7 @@
         <result column="creator" property="creator" />
         <result column="update_time" property="updateTime" />
         <result column="updater" property="updater" />
-        <result column="ext_info" property="extInfo" />
+        <result column="ext_info" property="extInfo" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->
