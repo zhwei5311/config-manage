@@ -30,7 +30,7 @@ public class CodeGenerator {
         this.param = param;
     }
 
-    private static final String dir = System.getProperty("user.dir");
+    private static final String DIR = System.getProperty("user.dir");
 
     public synchronized void generateCode(String rootDir,String[] tableName,
                                           String[] tablePrefix,String authorName,
@@ -43,8 +43,8 @@ public class CodeGenerator {
             AutoGenerator mpg = new AutoGenerator();
             // 全局配置
             GlobalConfig gc = new GlobalConfig();
-            int lastIndexOf = dir.lastIndexOf("\\");
-            String rootContent = dir.substring(0,lastIndexOf);
+            int lastIndexOf = DIR.lastIndexOf("\\");
+            String rootContent = DIR.substring(0,lastIndexOf);
             gc.setOutputDir(rootContent + type.getDesc() + "/src/main/java");
             gc.setFileOverride(override);
             // 不需要ActiveRecord特性的请改为false
@@ -149,11 +149,11 @@ public class CodeGenerator {
                 tc.setService("/template/service.java.vm");
                 tc.setServiceImpl("/templates/serviceImpl.java.vm");
             }else {
-                tc.setEntity(null);
+                /*tc.setEntity(null);
                 tc.setMapper(null);
                 tc.setController("/template/common.java.vm");
                 tc.setService(null);
-                tc.setServiceImpl(null);
+                tc.setServiceImpl(null);*/
             }
 
             // 如上任何一个模块如果设置 空 OR Null 将不生成该模块。
@@ -167,9 +167,15 @@ public class CodeGenerator {
     }
 
 
+    /**
+     * 生成类型
+     */
     private enum Type{
+        //dal
         DAL(0,".dal","/config-dal"),
+        //service
         SERVICE(1,".service","/config-service"),
+        //web
         WEB(2,".controller","/config-controller");
 
         private Integer code;

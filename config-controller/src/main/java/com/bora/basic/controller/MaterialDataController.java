@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.bora.basic.dal.domain.BasicDefineDo;
-import com.bora.basic.dal.domain.BasicTemplateDo;
 import com.bora.basic.dal.domain.MaterialDataDo;
 import com.bora.basic.service.service.IBasicDefineService;
 import com.bora.basic.service.service.IMaterialDataService;
@@ -15,7 +14,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /***
@@ -51,7 +49,7 @@ public class MaterialDataController {
     }
 
     /**
-     * 编辑物料记录
+     * 编辑单条物料记录
      * @param materialStr
      * @return
      */
@@ -68,6 +66,11 @@ public class MaterialDataController {
         return iMaterialDataService.updateById(materialDataDo);
     }
 
+    /**
+     * 删除单条物料记录
+     * @param id
+     * @return
+     */
     @GetMapping("/remove")
     public boolean remove(@RequestParam("id") Long id){
         return iMaterialDataService.removeById(id);

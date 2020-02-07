@@ -24,7 +24,7 @@ spring:
     type: com.alibaba.druid.pool.DruidDataSource
     driverClassName: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://101.132.133.191:3306/bora_basic_manage?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&serverTimezone=UTC
-    username: root
+    username: borames
     password: bora123
     initialSize: 1
     minIdle: 3
