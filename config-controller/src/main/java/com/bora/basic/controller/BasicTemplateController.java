@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.bora.basic.dal.domain.BasicTemplateDo;
 import com.bora.basic.service.service.IBasicTemplateService;
+import com.bora.commmon.domain.Result;
+import com.bora.commmon.page.PageList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,11 +35,11 @@ public class BasicTemplateController {
      * @return
      */
     @GetMapping("/list")
-    public IPage<BasicTemplateDo> list(@RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
+    public Result list(@RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
                                        @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize) {
         IPage<BasicTemplateDo> page = new Page<>(pageIndex, pageSize);
         IPage<BasicTemplateDo> templateDoPage = basicTemplateService.page(page);
-        return templateDoPage;
+        return Result.ok(new PageList(new com.bora.commmon.page.Page(pageIndex,pageSize),templateDoPage.getRecords()));
     }
 
     /**
@@ -47,12 +49,12 @@ public class BasicTemplateController {
      * @return
      */
     @PostMapping("/save")
-    public boolean save(@RequestBody String templateList) {
+    public Result save(@RequestBody String templateList) {
         if (StringUtils.isEmpty(templateList)) {
-            return false;
+            return Result.error("您的操作有误！");
         }
         List<BasicTemplateDo> basicTemplateDos = JSONObject.parseObject(templateList, List.class);
-        return basicTemplateService.saveBatch(basicTemplateDos);
+        return Result.ok(basicTemplateService.saveBatch(basicTemplateDos));
     }
 
     /**
@@ -62,8 +64,8 @@ public class BasicTemplateController {
      * @return
      */
     @PostMapping("/delete")
-    public boolean delete(@RequestParam("id") Long id) {
-        return basicTemplateService.removeById(id);
+    public Result delete(@RequestParam("id") Long id) {
+        return Result.ok(basicTemplateService.removeById(id));
     }
 
     /**
@@ -73,12 +75,12 @@ public class BasicTemplateController {
      * @return
      */
     @PostMapping("/edit")
-    public boolean edit(@RequestBody String templateList) {
+    public Result edit(@RequestBody String templateList) {
         if (StringUtils.isEmpty(templateList)) {
-            return false;
+            return Result.error("您的操作有误！");
         }
         BasicTemplateDo basicTemplateDo = JSONObject.parseObject(templateList, BasicTemplateDo.class);
-        return basicTemplateService.updateById(basicTemplateDo);
+        return Result.ok(basicTemplateService.updateById(basicTemplateDo));
     }
 
 

@@ -7,8 +7,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.bora.basic.dal.domain.BasicDefineDo;
 import com.bora.basic.dal.domain.BasicTemplateDo;
 import com.bora.basic.service.service.IBasicDefineService;
-//import com.bora.commmon.domain.Result;
-//import com.bora.commmon.page.PageList;
+import com.bora.commmon.domain.Result;
+import com.bora.commmon.page.PageList;
 import com.bora.basic.service.service.IBasicTemplateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -42,10 +42,10 @@ public class BasicDefineController {
      * @return
      */
     @GetMapping("/getDefineByMark")
-    public List<BasicDefineDo> getDefineByMark(String mark){
+    public Result getDefineByMark(String mark){
         List<BasicDefineDo> defineByMark = basicDefineService.getDefineByMark(mark);
-        return defineByMark;
-//        return Result.ok(defineByMark);
+//        return defineByMark;
+        return Result.ok(defineByMark);
     }
 
     /**
@@ -55,12 +55,12 @@ public class BasicDefineController {
      * @return
      */
     @GetMapping("/listDefine")
-    public IPage<BasicDefineDo> listDefine(@RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
+    public Result listDefine(@RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
                                                   @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize){
         IPage<BasicDefineDo> page = new Page<>(pageIndex,pageSize);
         IPage<BasicDefineDo> defineDoPage = basicDefineService.page(page);
-        return defineDoPage;
-//        return Result.ok(new PageList(new com.bora.commmon.page.Page(pageIndex,pageSize),defineDoIPage.getRecords()));
+//        return defineDoPage;
+        return Result.ok(new PageList(new com.bora.commmon.page.Page(pageIndex,pageSize),defineDoPage.getRecords()));
     }
 
     /**
@@ -69,7 +69,7 @@ public class BasicDefineController {
      * @return
      */
     @PostMapping("/saveDefine")
-    public boolean saveDefine(@RequestParam("tenantId") Integer tenantId){
+    public Result saveDefine(@RequestParam("tenantId") Integer tenantId){
         //查询条件为tenant
         QueryWrapper<BasicTemplateDo> wrapper = new QueryWrapper<>();
         wrapper.eq("tenant_id",tenantId);
@@ -78,7 +78,7 @@ public class BasicDefineController {
 
         //如果为空没必要往下执行
         if(CollectionUtils.isEmpty(basicTemplateList)){
-            return false;
+            return Result.error("您的操作有误！");
         }
 
         //定义空的Collection
@@ -108,8 +108,8 @@ public class BasicDefineController {
             basicDefineList.add(basicDefine);
         }
         //批量保存数据
-        return basicDefineService.saveBatch(basicDefineList);
-//        return Result.ok(basicDefineService.saveBatch(basicDefineDos));
+//        return basicDefineService.saveBatch(basicDefineList);
+        return Result.ok(basicDefineService.saveBatch(basicDefineList));
     }
 
     /**
@@ -118,9 +118,9 @@ public class BasicDefineController {
      * @return
      */
     @PostMapping("/deleteDefine")
-    public boolean deleteDefine(@RequestParam("id") Long id){
-        return basicDefineService.removeById(id);
-//        return Result.ok(basicDefineService.removeById(id));
+    public Result deleteDefine(@RequestParam("id") Long id){
+//        return basicDefineService.removeById(id);
+        return Result.ok(basicDefineService.removeById(id));
     }
 
     /**
@@ -129,14 +129,14 @@ public class BasicDefineController {
      * @return
      */
     @PostMapping("/editDefine")
-    public boolean editDefine(@RequestBody String defineList){
+    public Result editDefine(@RequestBody String defineList){
         if(StringUtils.isEmpty(defineList)){
-//            return Result.error("");
-            return false;
+            return Result.error("您的操作有误！");
+//            return false;
         }
         BasicDefineDo basicDefineDo = JSONObject.parseObject(defineList, BasicDefineDo.class);
-        return basicDefineService.updateById(basicDefineDo);
-//        return Result.ok(basicDefineService.updateById(basicDefineDo));
+//        return basicDefineService.updateById(basicDefineDo);
+        return Result.ok(basicDefineService.updateById(basicDefineDo));
     }
 
 

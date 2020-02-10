@@ -8,6 +8,8 @@ import com.bora.basic.dal.domain.BasicDefineDo;
 import com.bora.basic.dal.domain.MaterialDataDo;
 import com.bora.basic.service.service.IBasicDefineService;
 import com.bora.basic.service.service.IMaterialDataService;
+import com.bora.commmon.domain.Result;
+import com.bora.commmon.page.PageList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -38,14 +40,14 @@ public class MaterialDataController {
      * @return
      */
     @PostMapping("/save")
-    public boolean save(@RequestBody String materialStr){
+    public Result save(@RequestBody String materialStr){
         //为空直接返回，不做操作
         if(StringUtils.isEmpty(materialStr)){
-            return false;
+            return Result.error("您的操作有误！");
         }
 
         MaterialDataDo materialDataDo = JSONObject.parseObject(materialStr,MaterialDataDo.class);
-        return iMaterialDataService.save(materialDataDo);
+        return Result.ok(iMaterialDataService.save(materialDataDo));
     }
 
     /**
@@ -54,16 +56,16 @@ public class MaterialDataController {
      * @return
      */
     @PostMapping("/edit")
-    public boolean edit(@RequestBody String materialStr){
+    public Result edit(@RequestBody String materialStr){
         //为空直接返回，不做操作
         if(StringUtils.isEmpty(materialStr)){
-            return false;
+            return Result.error("您的操作有误！");
         }
         MaterialDataDo materialDataDo = JSONObject.parseObject(materialStr,MaterialDataDo.class);
         if(materialDataDo.getId() == null){
-            return false;
+            return Result.error("您的操作有误！");
         }
-        return iMaterialDataService.updateById(materialDataDo);
+        return Result.ok(iMaterialDataService.updateById(materialDataDo));
     }
 
     /**
@@ -72,8 +74,8 @@ public class MaterialDataController {
      * @return
      */
     @GetMapping("/remove")
-    public boolean remove(@RequestParam("id") Long id){
-        return iMaterialDataService.removeById(id);
+    public Result remove(@RequestParam("id") Long id){
+        return Result.ok(iMaterialDataService.removeById(id));
     }
 
     /**
@@ -83,7 +85,7 @@ public class MaterialDataController {
      * @return
      */
     @GetMapping("/listByPage")
-    public IPage<MaterialDataDo> listMaterialData(@RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
+    public Result listMaterialData(@RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
                                  @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
                                  @RequestParam(value = "tenantId",required = false, defaultValue = "null") Integer tenantId) {
         //添加查询条件：租户和是否显示
@@ -107,7 +109,8 @@ public class MaterialDataController {
         QueryWrapper<MaterialDataDo> queryWrapper = new QueryWrapper<>();
         queryWrapper.select(fields);
         IPage<MaterialDataDo> page = new Page<>(pageIndex, pageSize);
-        return iMaterialDataService.page(page,queryWrapper);
+        IPage<MaterialDataDo> materialDataDoIPage = iMaterialDataService.page(page, queryWrapper);
+        return Result.ok(new PageList(new com.bora.commmon.page.Page(pageIndex,pageSize),materialDataDoIPage.getRecords()));
     }
 
     /**
@@ -116,11 +119,11 @@ public class MaterialDataController {
      * @return
      */
     @GetMapping("/getMaterialName")
-    public List<MaterialDataDo> getMaterialName(@RequestBody Integer tenantId) {
+    public Result getMaterialName(@RequestBody Integer tenantId) {
         QueryWrapper<MaterialDataDo> wrapper = new QueryWrapper<>();
         wrapper.select("com_code","com_name");
         wrapper.eq("tenant_id",tenantId);
-        return iMaterialDataService.list(wrapper);
+        return Result.ok(iMaterialDataService.list(wrapper));
     }
 
 }

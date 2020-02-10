@@ -9,6 +9,8 @@ import com.bora.basic.dal.domain.BasicDefineDo;
 import com.bora.basic.dal.domain.TerminalDataDo;
 import com.bora.basic.service.service.IBasicDefineService;
 import com.bora.basic.service.service.ITerminalDataService;
+import com.bora.commmon.domain.Result;
+import com.bora.commmon.page.PageList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
@@ -41,7 +43,7 @@ public class TerminalDataController {
      * @return
      */
     @GetMapping("/listByPage")
-    public IPage<TerminalDataDo> listByPage(@RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
+    public Result listByPage(@RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
                                             @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
                                             @RequestParam(value = "tenantId",required = false, defaultValue = "null") Integer tenantId) {
         //添加查询条件：租户和是否显示
@@ -65,7 +67,8 @@ public class TerminalDataController {
         QueryWrapper<TerminalDataDo> queryWrapper = new QueryWrapper<>();
         queryWrapper.select(fields);
         IPage<TerminalDataDo> page = new Page<>(pageIndex, pageSize);
-        return terminalDataService.page(page,queryWrapper);
+        IPage<TerminalDataDo> terminalDataDoIPage = terminalDataService.page(page, queryWrapper);
+        return Result.ok(new PageList(new com.bora.commmon.page.Page(pageIndex,pageSize),terminalDataDoIPage.getRecords()));
     }
 
     /**
@@ -74,12 +77,12 @@ public class TerminalDataController {
      * @return
      */
     @PostMapping("/save")
-    public boolean save(@RequestBody String terminalStr) {
+    public Result save(@RequestBody String terminalStr) {
         if(StringUtils.isEmpty(terminalStr)) {
-            return false;
+            return Result.error("您的操作有误！");
         }
         TerminalDataDo terminalDataDo = JSONObject.parseObject(terminalStr, TerminalDataDo.class);
-        return terminalDataService.save(terminalDataDo);
+        return Result.ok(terminalDataService.save(terminalDataDo));
     }
 
     /**
@@ -88,15 +91,15 @@ public class TerminalDataController {
      * @return
      */
     @PostMapping("/edit")
-    public boolean edit(@RequestBody String terminalStr) {
+    public Result edit(@RequestBody String terminalStr) {
         if(StringUtils.isEmpty(terminalStr)) {
-            return false;
+            return Result.error("您的操作有误！");
         }
         TerminalDataDo terminalDataDo = JSONObject.parseObject(terminalStr, TerminalDataDo.class);
         if(null == terminalDataDo.getId()) {
-            return false;
+            return Result.error("您的操作有误！");
         }
-        return terminalDataService.updateById(terminalDataDo);
+        return Result.ok(terminalDataService.updateById(terminalDataDo));
     }
 
     /**
@@ -105,7 +108,7 @@ public class TerminalDataController {
      * @return
      */
     @GetMapping("/remove")
-    public boolean remove(@RequestParam("id") Long id) {
-        return terminalDataService.removeById(id);
+    public Result remove(@RequestParam("id") Long id) {
+        return Result.ok(terminalDataService.removeById(id));
     }
 }
