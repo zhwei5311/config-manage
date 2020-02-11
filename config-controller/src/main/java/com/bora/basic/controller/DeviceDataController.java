@@ -1,60 +1,63 @@
 package com.bora.basic.controller;
 
-import com.alibaba.druid.util.StringUtils;
+
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.bora.basic.dal.domain.BasicDefineDo;
-import com.bora.basic.dal.domain.TerminalDataDo;
+import com.bora.basic.dal.domain.DeviceDataDo;
 import com.bora.basic.service.service.IBasicDefineService;
-import com.bora.basic.service.service.ITerminalDataService;
+import com.bora.basic.service.service.IDeviceDataService;
 import com.bora.commmon.domain.Result;
 import com.bora.commmon.page.PageList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 /**
- * Ticket: TerminalDataController
+ * <p>
+ * 设备数据记录表 前端控制器
+ * </p>
  *
  * @author zhwei
- * @email zhaowei@boranet.com.cn
- * @Date: 2020/2/7 17:35
+ * @since 2020-02-11
  */
 @RestController
-@RequestMapping("/basic/terminal")
-public class TerminalDataController {
-
+@RequestMapping("/basic/device")
+public class DeviceDataController {
     @Autowired
-    private ITerminalDataService terminalDataService;
+    private IDeviceDataService deviceDataService;
 
     @Autowired
     private IBasicDefineService basicDefineService;
 
     /**
-     * 分页查询终端数据
+     * 分页查询设备数据
      * @param pageIndex
      * @param pageSize
      * @param tenantId
+     * @param mark
      * @return
      */
     @GetMapping("/listByPage")
     public Result listByPage(@RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
-                                            @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
-                                            @RequestParam(value = "tenantId",required = false, defaultValue = "null") Integer tenantId,
-                                            @RequestParam(value = "mark", required = false, defaultValue = "null") String mark) {
+                             @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
+                             @RequestParam(value = "tenantId", required = false, defaultValue = "null") Integer tenantId,
+                             @RequestParam(value = "mark", required = false, defaultValue = "null") String mark) {
         //添加查询条件：租户和是否显示
         QueryWrapper<BasicDefineDo> wrapper = new QueryWrapper<>();
-        wrapper.eq("tenant_id",tenantId);
-        wrapper.eq("is_show",1);
+        wrapper.eq("tenant_id", tenantId);
+        wrapper.eq("is_show", 1);
+        wrapper.eq("mark", mark);
         //查询租户模板表中需要显示的字段信息，包括字段名、字段中文名等信息
         List<BasicDefineDo> basicDefineList = basicDefineService.list(wrapper);
-        //判空，如果为空return null
-        if(CollectionUtils.isEmpty(basicDefineList)) {
+        if (CollectionUtils.isEmpty(basicDefineList)) {
             return null;
         }
         //根据basicDefineList获取的结果查询记录表中的数据
@@ -65,51 +68,53 @@ public class TerminalDataController {
         //获取属性名数组
         String[] fields = new String[collect.size()];
         collect.toArray(fields);
-        QueryWrapper<TerminalDataDo> queryWrapper = new QueryWrapper<>();
+        QueryWrapper<DeviceDataDo> queryWrapper = new QueryWrapper<>();
         queryWrapper.select(fields);
-        IPage<TerminalDataDo> page = new Page<>(pageIndex, pageSize);
-        IPage<TerminalDataDo> terminalDataDoIPage = terminalDataService.page(page, queryWrapper);
-        return Result.ok(new PageList(new com.bora.commmon.page.Page(pageIndex,pageSize),terminalDataDoIPage.getRecords()));
+        IPage<DeviceDataDo> page = new Page<>(pageIndex, pageSize);
+        IPage<DeviceDataDo> deviceDataIPage = deviceDataService.page(page, queryWrapper);
+        return Result.ok(new PageList(new com.bora.commmon.page.Page(pageIndex, pageSize), deviceDataIPage.getRecords()));
     }
 
     /**
-     * 新增终端数据
-     * @param terminalStr
+     * 新增设备数据
+     * @param deviceString
      * @return
      */
     @PostMapping("/save")
-    public Result save(@RequestBody String terminalStr) {
-        if(StringUtils.isEmpty(terminalStr)) {
+    public Result save(@RequestBody String deviceString) {
+        if(StringUtils.isEmpty(deviceString)) {
             return Result.error("您的操作有误！");
         }
-        TerminalDataDo terminalDataDo = JSONObject.parseObject(terminalStr, TerminalDataDo.class);
-        return Result.ok(terminalDataService.save(terminalDataDo));
+        DeviceDataDo deviceDataDo = JSONObject.parseObject(deviceString,DeviceDataDo.class);
+        return Result.ok(deviceDataService.save(deviceDataDo));
     }
 
     /**
-     * 编辑终端数据
-     * @param terminalStr
+     * 编辑设备数据
+     * @param deviceString
      * @return
      */
     @PostMapping("/edit")
-    public Result edit(@RequestBody String terminalStr) {
-        if(StringUtils.isEmpty(terminalStr)) {
+    public Result edit(@RequestBody String deviceString) {
+        if(StringUtils.isEmpty(deviceString)) {
             return Result.error("您的操作有误！");
         }
-        TerminalDataDo terminalDataDo = JSONObject.parseObject(terminalStr, TerminalDataDo.class);
-        if(null == terminalDataDo.getId()) {
+        DeviceDataDo deviceDataDo = JSONObject.parseObject(deviceString,DeviceDataDo.class);
+        if(null == deviceDataDo.getId()) {
             return Result.error("您的操作有误！");
         }
-        return Result.ok(terminalDataService.updateById(terminalDataDo));
+        return Result.ok(deviceDataService.updateById(deviceDataDo));
     }
 
     /**
-     * 根据id删除终端数据
+     * 根据id删除设备数据
      * @param id
      * @return
      */
     @GetMapping("/remove")
     public Result remove(@RequestParam("id") Long id) {
-        return Result.ok(terminalDataService.removeById(id));
+        return Result.ok(deviceDataService.removeById(id));
     }
 }
+
+

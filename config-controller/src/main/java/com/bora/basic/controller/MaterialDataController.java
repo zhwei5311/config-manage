@@ -87,7 +87,8 @@ public class MaterialDataController {
     @GetMapping("/listByPage")
     public Result listMaterialData(@RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
                                  @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
-                                 @RequestParam(value = "tenantId",required = false, defaultValue = "null") Integer tenantId) {
+                                 @RequestParam(value = "tenantId",required = false, defaultValue = "null") Integer tenantId,
+                                 @RequestParam(value = "mark", required = false, defaultValue = "null") String mark) {
         //添加查询条件：租户和是否显示
         QueryWrapper<BasicDefineDo> wrapper = new QueryWrapper<>();
         wrapper.eq("tenant_id",tenantId);
