@@ -1,5 +1,7 @@
 package com.bora.basic.dal.domain;
 
+import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 
@@ -9,6 +11,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 
 import java.io.Serializable;
 
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -78,5 +81,7 @@ public class DeviceDataDo implements Serializable {
     @ApiModelProperty(value = "更新人")
     private String updator;
 
-
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    @ApiModelProperty(value = "自定义字段")
+    private JSONObject extInfo;
 }

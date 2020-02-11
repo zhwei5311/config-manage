@@ -19,11 +19,12 @@
         <result column="creator" property="creator" />
         <result column="update_time" property="updateTime" />
         <result column="updator" property="updator" />
+        <result column="ext_info" property="extInfo" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, tenant_id, dev_code, dev_name, dev_type, dev_status, dev_specify, dev_model, workshop, terminal, description, create_time, creator, update_time, updator
+        id, tenant_id, dev_code, dev_name, dev_type, dev_status, dev_specify, dev_model, workshop, terminal, description, create_time, creator, update_time, updator, ext_info
     </sql>
 
 </mapper>

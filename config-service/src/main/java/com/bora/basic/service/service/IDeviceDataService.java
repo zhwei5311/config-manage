@@ -13,4 +13,4 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IDeviceDataService extends IService<DeviceDataDo> {
 
-        }
+}
