@@ -51,6 +51,9 @@ public class BasicDefineDo implements Serializable {
     @ApiModelProperty(value = "字段类型")
     private String fieldType;
 
+    @ApiModelProperty(value = "数据类型")
+    private String dataType;
+
     @ApiModelProperty(value = "字段属性，1：系统；2：可选")
     private Integer fieldAttr;
 

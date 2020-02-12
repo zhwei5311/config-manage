@@ -11,6 +11,7 @@
         <result column="field_name" property="fieldName" />
         <result column="field_status" property="fieldStatus" />
         <result column="field_type" property="fieldType" />
+        <result column="data_type" property="dataType" />
         <result column="field_attr" property="fieldAttr" />
         <result column="is_show" property="isShow" />
         <result column="order_no" property="orderNo" />
@@ -19,7 +20,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, tenant_id, mark, field_key, field_name, field_status, field_type, field_attr, is_show, order_no, description
+        id, tenant_id, mark, field_key, field_name, field_status, field_type, data_type, field_attr, is_show, order_no, description
     </sql>
 
 </mapper>
