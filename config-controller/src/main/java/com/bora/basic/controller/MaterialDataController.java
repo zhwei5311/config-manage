@@ -97,7 +97,7 @@ public class MaterialDataController {
         List<BasicDefineDo> basicDefineList = basicDefineService.list(wrapper);
         //判空，如果为空return null
         if(CollectionUtils.isEmpty(basicDefineList)) {
-            return null;
+            return Result.error("暂无数据");
         }
         //根据basicDefineList获取的结果查询记录表中的数据
         //拿到属性名
@@ -111,7 +111,11 @@ public class MaterialDataController {
         queryWrapper.select(fields);
         IPage<MaterialDataDo> page = new Page<>(pageIndex, pageSize);
         IPage<MaterialDataDo> materialDataDoIPage = iMaterialDataService.page(page, queryWrapper);
-        return Result.ok(new PageList(new com.bora.commmon.page.Page(pageIndex,pageSize),materialDataDoIPage.getRecords()));
+        com.bora.commmon.page.Page page1 = new com.bora.commmon.page.Page(pageIndex, pageSize);
+        page1.setTotal((int)materialDataDoIPage.getTotal());
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("title",fieldName);
+        return Result.ok(new PageList(page1,materialDataDoIPage.getRecords()),jsonObject);
     }
 
     /**

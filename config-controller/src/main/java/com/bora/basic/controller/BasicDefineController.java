@@ -44,7 +44,6 @@ public class BasicDefineController {
     @GetMapping("/getDefineByMark")
     public Result getDefineByMark(String mark){
         List<BasicDefineDo> defineByMark = basicDefineService.getDefineByMark(mark);
-//        return defineByMark;
         return Result.ok(defineByMark);
     }
 
@@ -55,12 +54,13 @@ public class BasicDefineController {
      * @return
      */
     @GetMapping("/listDefine")
-    public Result listDefine(@RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
+    public Result<List<BasicDefineDo>> listDefine(@RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
                                                   @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize){
         IPage<BasicDefineDo> page = new Page<>(pageIndex,pageSize);
         IPage<BasicDefineDo> defineDoPage = basicDefineService.page(page);
-//        return defineDoPage;
-        return Result.ok(new PageList(new com.bora.commmon.page.Page(pageIndex,pageSize),defineDoPage.getRecords()));
+        com.bora.commmon.page.Page page1 = new com.bora.commmon.page.Page(pageIndex, pageSize);
+        page1.setTotal((int)defineDoPage.getTotal());
+        return Result.ok(new PageList(page1,defineDoPage.getRecords()));
     }
 
     /**
@@ -108,7 +108,6 @@ public class BasicDefineController {
             basicDefineList.add(basicDefine);
         }
         //批量保存数据
-//        return basicDefineService.saveBatch(basicDefineList);
         return Result.ok(basicDefineService.saveBatch(basicDefineList));
     }
 
@@ -119,7 +118,6 @@ public class BasicDefineController {
      */
     @PostMapping("/deleteDefine")
     public Result deleteDefine(@RequestParam("id") Long id){
-//        return basicDefineService.removeById(id);
         return Result.ok(basicDefineService.removeById(id));
     }
 
@@ -132,12 +130,34 @@ public class BasicDefineController {
     public Result editDefine(@RequestBody String defineList){
         if(StringUtils.isEmpty(defineList)){
             return Result.error("您的操作有误！");
-//            return false;
         }
         BasicDefineDo basicDefineDo = JSONObject.parseObject(defineList, BasicDefineDo.class);
-//        return basicDefineService.updateById(basicDefineDo);
         return Result.ok(basicDefineService.updateById(basicDefineDo));
     }
 
+
+    /**
+     * 根据租户和功能标识获取到对应的字段列表传递给前端
+     * @param mark
+     * @param tenantId
+     * @return
+     */
+    @GetMapping("/")
+    public Result getPropertiesByMarkAndTenantId(@RequestParam("mark") String mark,
+                                                 @RequestParam("tenantId") Integer tenantId){
+        //设置查询条件
+        QueryWrapper<BasicDefineDo> queryWrapper = new QueryWrapper<>();
+        //功能标识
+        queryWrapper.eq("mark",mark);
+        //租户
+        queryWrapper.eq("tenant_id",tenantId);
+        //只查询未被禁用的
+        queryWrapper.eq("field_status",1);
+        //查询结果
+        List<BasicDefineDo> list = basicDefineService.list(queryWrapper);
+
+        //这里需要对查询结果进行处理，主要是处理单选和多选值
+        return Result.ok(list);
+    }
 
 }

@@ -27,6 +27,8 @@ public class BasicTemplateController {
     private IBasicTemplateService basicTemplateService;
 
 
+
+
     /**
      * 分页查询
      *
@@ -35,11 +37,13 @@ public class BasicTemplateController {
      * @return
      */
     @GetMapping("/list")
-    public Result list(@RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
+    public Result<List<BasicTemplateDo>> list(@RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
                                        @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize) {
         IPage<BasicTemplateDo> page = new Page<>(pageIndex, pageSize);
         IPage<BasicTemplateDo> templateDoPage = basicTemplateService.page(page);
-        return Result.ok(new PageList(new com.bora.commmon.page.Page(pageIndex,pageSize),templateDoPage.getRecords()));
+        com.bora.commmon.page.Page page1 = new com.bora.commmon.page.Page(pageIndex, pageSize);
+        page1.setTotal((int)templateDoPage.getTotal());
+        return Result.ok(new PageList(page1,templateDoPage.getRecords()));
     }
 
     /**

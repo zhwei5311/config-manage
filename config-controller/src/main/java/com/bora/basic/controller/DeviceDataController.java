@@ -58,7 +58,7 @@ public class DeviceDataController {
         //查询租户模板表中需要显示的字段信息，包括字段名、字段中文名等信息
         List<BasicDefineDo> basicDefineList = basicDefineService.list(wrapper);
         if (CollectionUtils.isEmpty(basicDefineList)) {
-            return null;
+            return  Result.error("暂无数据");
         }
         //根据basicDefineList获取的结果查询记录表中的数据
         //拿到属性名
