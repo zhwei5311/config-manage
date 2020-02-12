@@ -1,12 +1,15 @@
 package com.bora.basic.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.bora.basic.dal.domain.BasicDefineDo;
 import com.bora.basic.dal.domain.BasicTemplateDo;
+import com.bora.basic.dal.domain.ExtensionDo;
 import com.bora.basic.service.service.IBasicDefineService;
+import com.bora.basic.service.service.IExtensionService;
 import com.bora.commmon.domain.Result;
 import com.bora.commmon.page.PageList;
 import com.bora.basic.service.service.IBasicTemplateService;
@@ -34,6 +37,9 @@ public class BasicDefineController {
 
     @Autowired
     private IBasicTemplateService basicTemplateService;
+
+    @Autowired
+    private IExtensionService extensionService;
 
 
     /**
@@ -69,7 +75,8 @@ public class BasicDefineController {
      * @return
      */
     @PostMapping("/saveDefine")
-    public Result saveDefine(@RequestParam("tenantId") Integer tenantId){
+    public Result saveDefine(@RequestParam("tenantId") Integer tenantId,
+                             @RequestParam("mark") String mark){
         //查询条件为tenant
         QueryWrapper<BasicTemplateDo> wrapper = new QueryWrapper<>();
         wrapper.eq("tenant_id",tenantId);
@@ -90,8 +97,8 @@ public class BasicDefineController {
             BasicDefineDo basicDefine = new BasicDefineDo();
             //租户id
             basicDefine.setTenantId(tenantId);
-            //参数可以直接写死
-            basicDefine.setMark("物料");
+            //功能标识符
+            basicDefine.setMark(mark);
             //字段
             basicDefine.setFieldKey(basicTemplate.getFieldKey());
             //字段中文名
@@ -142,7 +149,7 @@ public class BasicDefineController {
      * @param tenantId
      * @return
      */
-    @GetMapping("/")
+    @GetMapping("/getPropertiesByMarkAndTenantId")
     public Result getPropertiesByMarkAndTenantId(@RequestParam("mark") String mark,
                                                  @RequestParam("tenantId") Integer tenantId){
         //设置查询条件
@@ -153,10 +160,22 @@ public class BasicDefineController {
         queryWrapper.eq("tenant_id",tenantId);
         //只查询未被禁用的
         queryWrapper.eq("field_status",1);
+        //根据定义的排序号进行排序
+        queryWrapper.orderByAsc("order_no");
         //查询结果
         List<BasicDefineDo> list = basicDefineService.list(queryWrapper);
 
         //这里需要对查询结果进行处理，主要是处理单选和多选值
+
+        for(BasicDefineDo basicDefineDo : list){
+            if(basicDefineDo.getFieldType().equals("单选")){
+                LambdaQueryWrapper<ExtensionDo> extensionDoLambdaQueryWrapper = new LambdaQueryWrapper<>();
+                extensionDoLambdaQueryWrapper.eq(ExtensionDo::getTenantId,tenantId);
+                extensionDoLambdaQueryWrapper.eq(ExtensionDo::getFieldKey,basicDefineDo.getFieldKey());
+                List<ExtensionDo> extensionDos = extensionService.list(extensionDoLambdaQueryWrapper);
+                basicDefineDo.setExtensionDoList(extensionDos);
+            }
+        }
         return Result.ok(list);
     }
 

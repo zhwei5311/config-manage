@@ -1,10 +1,12 @@
 package com.bora.basic.dal.domain;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 
 import java.io.Serializable;
+import java.util.List;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -66,5 +68,8 @@ public class BasicDefineDo implements Serializable {
     @ApiModelProperty(value = "备注")
     private String description;
 
+    @TableField(exist = false)
+    @ApiModelProperty(value = "单选或多选扩展")
+    protected List<ExtensionDo> extensionDoList;
 
 }

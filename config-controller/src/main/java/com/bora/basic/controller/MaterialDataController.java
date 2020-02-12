@@ -87,12 +87,12 @@ public class MaterialDataController {
     @GetMapping("/listByPage")
     public Result listMaterialData(@RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
                                  @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
-                                 @RequestParam(value = "tenantId",required = false, defaultValue = "null") Integer tenantId,
-                                 @RequestParam(value = "mark", required = false, defaultValue = "null") String mark) {
+                                 @RequestParam(value = "tenantId") Integer tenantId) {
         //添加查询条件：租户和是否显示
         QueryWrapper<BasicDefineDo> wrapper = new QueryWrapper<>();
         wrapper.eq("tenant_id",tenantId);
         wrapper.eq("is_show",1);
+        wrapper.eq("mark","物料");
         //查询租户模板表中需要显示的字段信息，包括字段名、字段中文名等信息
         List<BasicDefineDo> basicDefineList = basicDefineService.list(wrapper);
         //判空，如果为空return null
@@ -124,7 +124,7 @@ public class MaterialDataController {
      * @return
      */
     @GetMapping("/getMaterialName")
-    public Result getMaterialName(@RequestBody Integer tenantId) {
+    public Result getMaterialName(@RequestParam("tenantId") Integer tenantId) {
         QueryWrapper<MaterialDataDo> wrapper = new QueryWrapper<>();
         wrapper.select("com_code","com_name");
         wrapper.eq("tenant_id",tenantId);
