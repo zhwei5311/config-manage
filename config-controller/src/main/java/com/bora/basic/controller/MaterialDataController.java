@@ -1,6 +1,7 @@
 package com.bora.basic.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -15,7 +16,9 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /***
@@ -129,6 +132,45 @@ public class MaterialDataController {
         wrapper.select("com_code","com_name");
         wrapper.eq("tenant_id",tenantId);
         return Result.ok(iMaterialDataService.list(wrapper));
+    }
+
+    @GetMapping("/getMaterialById")
+    public Result getMaterialById(@RequestParam("id") Long id,
+                                  @RequestParam("tenantId") Integer tenantId){
+        //获取字段，并根据对应字段返回
+        LambdaQueryWrapper<BasicDefineDo> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        //功能标识
+        lambdaQueryWrapper.eq(BasicDefineDo::getMark,"物料");
+        //租户
+        lambdaQueryWrapper.eq(BasicDefineDo::getTenantId,tenantId);
+        //只查询未被禁用的
+        lambdaQueryWrapper.eq(BasicDefineDo::getFieldStatus,1);
+        //根据定义的排序号进行排序
+        lambdaQueryWrapper.orderByAsc(BasicDefineDo::getOrderNo);
+        //查询结果
+        List<BasicDefineDo> list = basicDefineService.list(lambdaQueryWrapper);
+        List<String> collect = list.stream().map(BasicDefineDo::getFieldKey).collect(Collectors.toList());
+        //获取属性名数组
+        String[] fields = new String[collect.size()];
+        collect.toArray(fields);
+        QueryWrapper<MaterialDataDo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select(fields);
+        queryWrapper.eq("id",id);
+        Map<String, Object> map = iMaterialDataService.getMap(queryWrapper);
+        if(CollectionUtils.isEmpty(map)){
+            return Result.error("暂无数据查询！");
+        }
+        List<JSONObject> jsonObjectList = new ArrayList<>();
+        for(BasicDefineDo basicDefineDo : list){
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("fieldKey",basicDefineDo.getFieldKey());
+            jsonObject.put("tenantId",basicDefineDo.getTenantId());
+            jsonObject.put("fieldName",basicDefineDo.getFieldName());
+            jsonObject.put("fieldType",basicDefineDo.getFieldType());
+            jsonObject.put("value",map.get(basicDefineDo.getFieldKey()));
+            jsonObjectList.add(jsonObject);
+        }
+        return Result.ok(jsonObjectList);
     }
 
 }
