@@ -7,6 +7,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -66,6 +68,30 @@ public class ReflectUtil {
         return null;
     }
 
+
+    public static <V> Map<String,Object> objectToMap(V obj){
+        if(obj == null){
+            return Collections.EMPTY_MAP;
+        }
+        Class<?> cls = obj.getClass();
+        Map<String,Object> objectMap = new HashMap<>(4);
+        try{
+            Field[] declaredFields = cls.getDeclaredFields();
+            if(declaredFields == null){
+                return Collections.EMPTY_MAP;
+            }
+            for(Field field : declaredFields){
+                field.setAccessible(true);
+                objectMap.put(field.getName(),field.get(obj));
+                field.setAccessible(false);
+            }
+        }catch (Exception e){
+            return Collections.EMPTY_MAP;
+        }
+        return objectMap;
+    }
+
+
     private static <T> void setValue(String name, Class<T> tClass, T t, Object value) throws NoSuchFieldException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         Field declaredField = tClass.getDeclaredField(name);
         String methodName = "set" + name.substring(0,1).toUpperCase()+name.substring(1);
@@ -84,41 +110,57 @@ public class ReflectUtil {
 
 
     private static Object getClassTypeValue(Class<?> typeClass, Object value){
-        if(typeClass == int.class  || value instanceof Integer){
+        if(typeClass == int.class || typeClass == Integer.class  ){
             if(null == value){
                 return 0;
+            }else if(value instanceof Integer){
+                return value;
+            }else{
+                return Integer.valueOf(value.toString());
             }
-            return value;
-        }else if(typeClass == short.class){
+
+        }else if(typeClass == short.class || typeClass == Short.class){
             if(null == value){
                 return 0;
+            }else if(value instanceof Short){
+                return value;
+            }else{
+                return Short.valueOf(value.toString());
             }
-            return value;
-        }else if(typeClass == byte.class){
+        }else if(typeClass == byte.class || typeClass == Byte.class){
             if(null == value){
                 return 0;
+            }else if(value instanceof Byte){
+                return value;
+            }else{
+                return Byte.valueOf(value.toString());
             }
-            return value;
-        }else if(typeClass == double.class){
+        }else if(typeClass == double.class || typeClass == Double.class){
             if(null == value){
                 return 0;
+            }else if(value instanceof Double){
+                return value;
+            }else{
+                return Double.valueOf(value.toString());
             }
-            return value;
-        }else if(typeClass == long.class){
+        }else if(typeClass == long.class || typeClass == Long.class){
             if(null == value){
                 return 0;
+            }else if(value instanceof Long){
+                return value;
+            }else{
+                return Long.valueOf(value.toString());
             }
-            return value;
         }else if(typeClass == String.class){
-            if(null == value){
-                return "";
-            }
             return value;
-        }else if(typeClass == boolean.class){
+        }else if(typeClass == boolean.class || typeClass == Boolean.class){
             if(null == value){
                 return true;
+            }else if(value instanceof Boolean){
+                return value;
+            }else{
+                return Boolean.valueOf(value.toString());
             }
-            return value;
         }else if(typeClass == BigDecimal.class){
             if(null == value){
                 return new BigDecimal(0);
@@ -128,4 +170,6 @@ public class ReflectUtil {
             return typeClass.cast(value);
         }
     }
+
+
 }
