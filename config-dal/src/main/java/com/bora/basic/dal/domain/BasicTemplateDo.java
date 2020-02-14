@@ -48,6 +48,9 @@ public class BasicTemplateDo implements Serializable {
     @ApiModelProperty(value = "字段属性，1：标准；2：可选；3：自定义")
     private Integer fieldAttr;
 
+    @ApiModelProperty(value = "字段标识")
+    private String mark;
+
     @ApiModelProperty(value = "备注")
     private String description;
 

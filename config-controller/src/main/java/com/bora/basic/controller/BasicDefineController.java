@@ -18,9 +18,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /***
  *Ticket: 系统提供的基本配置字段
@@ -38,47 +36,72 @@ public class BasicDefineController {
     @Autowired
     private IBasicTemplateService basicTemplateService;
 
-    @Autowired
-    private IExtensionService extensionService;
 
-
-    /**
-     * 根据功能标识查询系统字段
-     * @param mark
-     * @return
-     */
-    @GetMapping("/getDefineByMark")
-    public Result getDefineByMark(String mark){
-        List<BasicDefineDo> defineByMark = basicDefineService.getDefineByMark(mark);
-        return Result.ok(defineByMark);
-    }
 
     /**
      * 分页查看系统功能 //todo 查询条件待定
      * @param pageIndex
      * @param pageSize
+     * @param mark 功能标识
      * @return
      */
     @GetMapping("/listDefine")
     public Result<List<BasicDefineDo>> listDefine(@RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
-                                                  @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize){
+                                                  @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
+                                                  @RequestParam(value = "mark") String mark){
+        LambdaQueryWrapper<BasicDefineDo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BasicDefineDo::getMark,mark);
         IPage<BasicDefineDo> page = new Page<>(pageIndex,pageSize);
-        IPage<BasicDefineDo> defineDoPage = basicDefineService.page(page);
+        IPage<BasicDefineDo> defineDoPage = basicDefineService.page(page,queryWrapper);
         com.bora.commmon.page.Page page1 = new com.bora.commmon.page.Page(pageIndex, pageSize);
         page1.setTotal((int)defineDoPage.getTotal());
         return Result.ok(new PageList(page1,defineDoPage.getRecords()));
     }
 
+    @GetMapping("/listDefineNoPage")
+    public Result<Map<String,Object>> listDefine(@RequestParam(value = "mark") String mark){
+        Integer tenantId = 1;
+        LambdaQueryWrapper<BasicDefineDo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BasicDefineDo::getMark,mark);
+        queryWrapper.eq(BasicDefineDo::getFieldAttr,1);
+        queryWrapper.eq(BasicDefineDo::getTenantId,tenantId);
+        Map<String,Object> map = new HashMap<>(3);
+
+        //选择系统字段
+        List<BasicDefineDo> systemBasic = basicDefineService.list(queryWrapper);
+        map.put("system",systemBasic);
+
+        //选择可选字段
+        LambdaQueryWrapper<BasicDefineDo> selectWrapper = new LambdaQueryWrapper<>();
+        selectWrapper.eq(BasicDefineDo::getMark,mark);
+        selectWrapper.eq(BasicDefineDo::getFieldAttr,2);
+        selectWrapper.eq(BasicDefineDo::getTenantId,tenantId);
+        List<BasicDefineDo> selectBasic = basicDefineService.list(selectWrapper);
+        map.put("select",selectBasic);
+
+        //租户自定义字段
+        LambdaQueryWrapper<BasicDefineDo> tenantWrapper = new LambdaQueryWrapper<>();
+        tenantWrapper.eq(BasicDefineDo::getMark,mark);
+        tenantWrapper.eq(BasicDefineDo::getFieldAttr,3);
+        tenantWrapper.eq(BasicDefineDo::getTenantId,tenantId);
+
+        List<BasicDefineDo> tenantBasic = basicDefineService.list(tenantWrapper);
+        map.put("tenant",tenantBasic);
+
+        return Result.ok(map);
+    }
+
     /**
-     * 新增
-     * @param tenantId
+     * 新增系统字段、可选字段
+     * 供创建租户时调用
+     * @param mark
      * @return
      */
     @PostMapping("/saveDefine")
-    public Result saveDefine(@RequestParam("tenantId") Integer tenantId,
-                             @RequestParam("mark") String mark){
+    public Result saveDefine(@RequestParam("mark") String mark){
         //查询条件为tenant
         QueryWrapper<BasicTemplateDo> wrapper = new QueryWrapper<>();
+        int tenantId = 1;
         wrapper.eq("tenant_id",tenantId);
         //根据tenant得到模板中的list数据
         Collection<BasicTemplateDo> basicTemplateList = basicTemplateService.list(wrapper);
@@ -118,6 +141,23 @@ public class BasicDefineController {
         return Result.ok(basicDefineService.saveBatch(basicDefineList));
     }
 
+    @PostMapping("/saveTenantConfig")
+    public Result saveDefine(BasicDefineDo basicDefineDo){
+        Integer tenantId = 1;
+        if(basicDefineDo == null){
+            return Result.error("新增字段不能为空！");
+        }
+        if(StringUtils.isEmpty(basicDefineDo.getMark())){
+            return Result.error("未能识别功能标识符!");
+        }
+        if(basicDefineDo.getFieldAttr() == null || basicDefineDo.getFieldAttr().intValue() != 3){
+            return Result.error("只能新增自定义字段！");
+        }
+
+        basicDefineDo.setTenantId(tenantId);
+        return Result.ok(basicDefineService.save(basicDefineDo));
+    }
+
     /**
      * 单个删除
      * @param id
@@ -130,53 +170,32 @@ public class BasicDefineController {
 
     /**
      * 单个编辑
-     * @param defineList
+     * @param basicDefineDo
      * @return
      */
     @PostMapping("/editDefine")
-    public Result editDefine(@RequestBody String defineList){
-        if(StringUtils.isEmpty(defineList)){
-            return Result.error("您的操作有误！");
+    public Result editDefine(BasicDefineDo basicDefineDo){
+        if(basicDefineDo == null){
+            return Result.error("修改字段不能为空");
         }
-        BasicDefineDo basicDefineDo = JSONObject.parseObject(defineList, BasicDefineDo.class);
         return Result.ok(basicDefineService.updateById(basicDefineDo));
+    }
+
+    @GetMapping("/getDefineById")
+    public Result getDefineById(@RequestParam("id") Long id){
+        return Result.ok(basicDefineService.getById(id));
     }
 
 
     /**
      * 根据租户和功能标识获取到对应的字段列表传递给前端
      * @param mark
-     * @param tenantId
      * @return
      */
     @GetMapping("/getPropertiesByMarkAndTenantId")
-    public Result getPropertiesByMarkAndTenantId(@RequestParam("mark") String mark,
-                                                 @RequestParam("tenantId") Integer tenantId){
-        //设置查询条件
-        QueryWrapper<BasicDefineDo> queryWrapper = new QueryWrapper<>();
-        //功能标识
-        queryWrapper.eq("mark",mark);
-        //租户
-        queryWrapper.eq("tenant_id",tenantId);
-        //只查询未被禁用的
-        queryWrapper.eq("field_status",1);
-        //根据定义的排序号进行排序
-        queryWrapper.orderByAsc("order_no");
-        //查询结果
-        List<BasicDefineDo> list = basicDefineService.list(queryWrapper);
-
-        //这里需要对查询结果进行处理，主要是处理单选和多选值
-
-        for(BasicDefineDo basicDefineDo : list){
-            if(basicDefineDo.getFieldType().equals("单选")){
-                LambdaQueryWrapper<ExtensionDo> extensionDoLambdaQueryWrapper = new LambdaQueryWrapper<>();
-                extensionDoLambdaQueryWrapper.eq(ExtensionDo::getTenantId,tenantId);
-                extensionDoLambdaQueryWrapper.eq(ExtensionDo::getFieldKey,basicDefineDo.getFieldKey());
-                List<ExtensionDo> extensionDos = extensionService.list(extensionDoLambdaQueryWrapper);
-                basicDefineDo.setExtensionDoList(extensionDos);
-            }
-        }
-        return Result.ok(list);
+        public Result getPropertiesByMarkAndTenantId(@RequestParam("mark") String mark){
+        int tenantId = 1;
+        return Result.ok(basicDefineService.getPropertiesByMarkAndTenantId(tenantId,mark));
     }
 
 }

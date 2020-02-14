@@ -11,12 +11,13 @@
         <result column="data_type" property="dataType" />
         <result column="field_status" property="fieldStatus" />
         <result column="field_attr" property="fieldAttr" />
+        <result column="mark" property="mark" />
         <result column="description" property="description" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, field_key, field_name, field_type, data_type, field_status, field_attr, description
+        id, field_key, field_name, field_type, data_type, field_status, field_attr,mark, description
     </sql>
 
 </mapper>

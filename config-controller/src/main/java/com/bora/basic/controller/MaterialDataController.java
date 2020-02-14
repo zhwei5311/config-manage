@@ -48,8 +48,9 @@ public class MaterialDataController {
         if(StringUtils.isEmpty(materialStr)){
             return Result.error("您的操作有误！");
         }
-
+        int tenantId = 1;
         MaterialDataDo materialDataDo = JSONObject.parseObject(materialStr,MaterialDataDo.class);
+        materialDataDo.setTenantId(tenantId);
         return Result.ok(iMaterialDataService.save(materialDataDo));
     }
 
@@ -89,9 +90,9 @@ public class MaterialDataController {
      */
     @GetMapping("/listByPage")
     public Result listMaterialData(@RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
-                                 @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
-                                 @RequestParam(value = "tenantId") Integer tenantId) {
+                                 @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize) {
         //添加查询条件：租户和是否显示
+         Integer tenantId = 1;
         QueryWrapper<BasicDefineDo> wrapper = new QueryWrapper<>();
         wrapper.eq("tenant_id",tenantId);
         wrapper.eq("is_show",1);
@@ -123,11 +124,11 @@ public class MaterialDataController {
 
     /**
      * 获取所有的物料名称
-     * @param tenantId
      * @return
      */
     @GetMapping("/getMaterialName")
-    public Result getMaterialName(@RequestParam("tenantId") Integer tenantId) {
+    public Result getMaterialName() {
+        Integer tenantId = 1;
         QueryWrapper<MaterialDataDo> wrapper = new QueryWrapper<>();
         wrapper.select("com_code","com_name");
         wrapper.eq("tenant_id",tenantId);
@@ -135,8 +136,8 @@ public class MaterialDataController {
     }
 
     @GetMapping("/getMaterialById")
-    public Result getMaterialById(@RequestParam("id") Long id,
-                                  @RequestParam("tenantId") Integer tenantId){
+    public Result getMaterialById(@RequestParam("id") Long id){
+        Integer tenantId = 1;
         //获取字段，并根据对应字段返回
         LambdaQueryWrapper<BasicDefineDo> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         //功能标识

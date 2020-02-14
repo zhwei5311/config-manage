@@ -68,8 +68,6 @@ public class BasicDefineDo implements Serializable {
     @ApiModelProperty(value = "备注")
     private String description;
 
-    @TableField(exist = false)
-    @ApiModelProperty(value = "单选或多选扩展")
-    protected List<ExtensionDo> extensionDoList;
+
 
 }
