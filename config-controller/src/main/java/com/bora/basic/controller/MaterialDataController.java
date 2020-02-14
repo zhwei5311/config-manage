@@ -63,8 +63,11 @@ public class MaterialDataController {
      */
     @PostMapping("/save")
     public Result save(@RequestParam Map<String,Object> params){
-
         MaterialDataDo materialDataDo = ReflectUtil.mapToObject(params, COLUMN_KEY, MaterialDataDo.class);
+        if(materialDataDo == null){
+            return Result.error("您的操作有误！");
+        }
+        //其他限制字段待定
         int tenantId = 1;
         materialDataDo.setTenantId(tenantId);
         return Result.ok(iMaterialDataService.save(materialDataDo));
@@ -72,19 +75,17 @@ public class MaterialDataController {
 
     /**
      * 编辑单条物料记录
-     * @param materialStr
+     * @param params
      * @return
      */
     @PostMapping("/edit")
-    public Result edit(@RequestBody String materialStr){
+    public Result edit(@RequestParam Map<String,Object> params){
         //为空直接返回，不做操作
-        if(StringUtils.isEmpty(materialStr)){
+        MaterialDataDo materialDataDo = ReflectUtil.mapToObject(params, COLUMN_KEY, MaterialDataDo.class);
+        if(materialDataDo == null || materialDataDo.getId() == null){
             return Result.error("您的操作有误！");
         }
-        MaterialDataDo materialDataDo = JSONObject.parseObject(materialStr,MaterialDataDo.class);
-        if(materialDataDo.getId() == null){
-            return Result.error("您的操作有误！");
-        }
+        //其他限制字段待定
         return Result.ok(iMaterialDataService.updateById(materialDataDo));
     }
 
@@ -142,10 +143,11 @@ public class MaterialDataController {
         }
 
         //获取属性名数组
-        String[] fields = new String[basicField.size()+1];
+        String[] fields = new String[basicField.size()+2];
         basicField.toArray(fields);
         //还需要检索扩展字段
-        fields[fields.length -1] = "ext_info";
+        fields[fields.length -2] = "ext_info";
+        fields[fields.length -1] = "id";
         //分页查询
         QueryWrapper<MaterialDataDo> queryWrapper = new QueryWrapper<>();
         queryWrapper.select(fields);
