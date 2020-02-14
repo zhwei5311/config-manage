@@ -41,30 +41,31 @@ public class DeviceDataController {
     @Autowired
     private IBasicDefineService basicDefineService;
 
-    public static final Map<String,String> COLUMN_KEY = new HashMap<>();
+    public static final Map<String, String> COLUMN_KEY = new HashMap<>();
 
     static {
-        COLUMN_KEY.put("id","id");
-        COLUMN_KEY.put("tenant_id","tenantId");
-        COLUMN_KEY.put("tenant_id","tenantId");
-        COLUMN_KEY.put("dev_code","dev_code");
-        COLUMN_KEY.put("dev_name","dev_name");
-        COLUMN_KEY.put("dev_type","dev_type");
-        COLUMN_KEY.put("dev_status","dev_status");
-        COLUMN_KEY.put("dev_specify","dev_specify");
-        COLUMN_KEY.put("dev_model","dev_model");
-        COLUMN_KEY.put("workshop","workshop");
-        COLUMN_KEY.put("terminal","terminal");
-        COLUMN_KEY.put("description","description");
-        COLUMN_KEY.put("create_time","create_time");
-        COLUMN_KEY.put("creator","creator");
-        COLUMN_KEY.put("update_time","update_time");
-        COLUMN_KEY.put("updator","updator");
-        COLUMN_KEY.put("extInfo","extInfo");
+        COLUMN_KEY.put("id", "id");
+        COLUMN_KEY.put("tenant_id", "tenantId");
+        COLUMN_KEY.put("tenant_id", "tenantId");
+        COLUMN_KEY.put("dev_code", "dev_code");
+        COLUMN_KEY.put("dev_name", "dev_name");
+        COLUMN_KEY.put("dev_type", "dev_type");
+        COLUMN_KEY.put("dev_status", "dev_status");
+        COLUMN_KEY.put("dev_specify", "dev_specify");
+        COLUMN_KEY.put("dev_model", "dev_model");
+        COLUMN_KEY.put("workshop", "workshop");
+        COLUMN_KEY.put("terminal", "terminal");
+        COLUMN_KEY.put("description", "description");
+        COLUMN_KEY.put("create_time", "create_time");
+        COLUMN_KEY.put("creator", "creator");
+        COLUMN_KEY.put("update_time", "update_time");
+        COLUMN_KEY.put("updator", "updator");
+        COLUMN_KEY.put("extInfo", "extInfo");
     }
 
     /**
      * 分页查询设备数据
+     *
      * @param pageIndex
      * @param pageSize
      * @return
@@ -83,29 +84,29 @@ public class DeviceDataController {
         List<BasicDefineDo> basicDefineList = basicDefineService.list(wrapper);
         //判空，如果为空，则返回“暂无数据”
         if (CollectionUtils.isEmpty(basicDefineList)) {
-            return  Result.error("暂无数据");
+            return Result.error("暂无数据");
         }
         //根据basicDefineList获取的结果查询记录表中的数据
         //拿到属性名
         List<String> basicField = new ArrayList<>();
-        List<Map<String,String>> fieldNameMap = new ArrayList<>();
+        List<Map<String, String>> fieldNameMap = new ArrayList<>();
         //为了方便拆分检索出来的扩展字段
-        Map<String,String> keyToName = new HashMap<>(4);
+        Map<String, String> keyToName = new HashMap<>(4);
         List<String> keyToNameOrder = new ArrayList<>();
-        for(int i = 0; i < basicDefineList.size(); i++) {
+        for (int i = 0; i < basicDefineList.size(); i++) {
             BasicDefineDo basicDefineDo = basicDefineList.get(i);
-            Map<String,String> fieldName = new HashMap<>();
-            fieldName.put(basicDefineDo.getFieldKey(),basicDefineDo.getFieldName());
+            Map<String, String> fieldName = new HashMap<>();
+            fieldName.put(basicDefineDo.getFieldKey(), basicDefineDo.getFieldName());
             keyToNameOrder.add(basicDefineDo.getFieldKey());
             fieldNameMap.add(fieldName);
-            if(basicDefineDo.getFieldAttr().intValue() == 3) {
-                keyToName.put(basicDefineDo.getFieldKey(),basicDefineDo.getFieldName());
+            if (basicDefineDo.getFieldAttr().intValue() == 3) {
+                keyToName.put(basicDefineDo.getFieldKey(), basicDefineDo.getFieldName());
                 continue;
             }
             basicField.add(basicDefineDo.getFieldKey());
         }
         //获取属性名数组
-        String[] fields = new String[basicField.size()+2];
+        String[] fields = new String[basicField.size() + 2];
         basicField.toArray(fields);
         //还需要检索扩展字段
         fields[fields.length - 2] = "ext_info";
@@ -115,30 +116,30 @@ public class DeviceDataController {
         queryWrapper.select(fields);
         IPage<Map<String, Object>> page = new Page<>(pageIndex, pageSize);
         IPage<Map<String, Object>> deviceDataIPage = deviceDataService.pageMaps(page, queryWrapper);
-        com.bora.commmon.page.Page page1 = new com.bora.commmon.page.Page(pageIndex,pageSize);
-        page1.setTotal((int)deviceDataIPage.getTotal());
+        com.bora.commmon.page.Page page1 = new com.bora.commmon.page.Page(pageIndex, pageSize);
+        page1.setTotal((int) deviceDataIPage.getTotal());
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("title",fieldNameMap);
+        jsonObject.put("title", fieldNameMap);
         //对检索结果进行处理
         //拆分扩展字段合并到系统、可选字段同一等级
-        List<Map<String,Object>> records = deviceDataIPage.getRecords();
+        List<Map<String, Object>> records = deviceDataIPage.getRecords();
         for (int i = 0; i < records.size(); i++) {
-            Map<String,Object> record = records.get(i);
-            if(record.containsKey("ext_info")) {
+            Map<String, Object> record = records.get(i);
+            if (record.containsKey("ext_info")) {
                 JSONObject extInfo = JSONObject.parseObject(record.get("ext_info").toString());
                 Set<String> strings = extInfo.keySet();
                 Iterator<String> iterator = strings.iterator();
-                while(iterator.hasNext()){
+                while (iterator.hasNext()) {
                     String next = iterator.next();
                     //判断是不是在展示的结果里，如果不在则不需要展示
-                    if(keyToName.containsKey(next)){
-                        record.put(next,extInfo.get(next));
+                    if (keyToName.containsKey(next)) {
+                        record.put(next, extInfo.get(next));
                     }
                 }
                 record.remove("ext_info");
             }
         }
-        return Result.ok(new PageList(page1,records), jsonObject);
+        return Result.ok(new PageList(page1, records), jsonObject);
     }
 
     /**
@@ -148,13 +149,14 @@ public class DeviceDataController {
     public Result getDevName() {
         Integer tenantId = 1;
         QueryWrapper<DeviceDataDo> wrapper = new QueryWrapper<>();
-        wrapper.select("dev_code","dev_name");
-        wrapper.eq("tenant_id",tenantId);
+        wrapper.select("dev_code", "dev_name");
+        wrapper.eq("tenant_id", tenantId);
         return Result.ok(deviceDataService.list(wrapper));
     }
 
     /**
      * 根据id获取记录
+     *
      * @Param id
      */
     @GetMapping("getDeviceById")
@@ -163,11 +165,11 @@ public class DeviceDataController {
         //获取字段，并根据对应字段返回
         LambdaQueryWrapper<BasicDefineDo> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         //功能标识
-        lambdaQueryWrapper.eq(BasicDefineDo::getMark,"设备");
+        lambdaQueryWrapper.eq(BasicDefineDo::getMark, "设备");
         //租户
-        lambdaQueryWrapper.eq(BasicDefineDo::getTenantId,tenantId);
+        lambdaQueryWrapper.eq(BasicDefineDo::getTenantId, tenantId);
         //只查询未被禁用的
-        lambdaQueryWrapper.eq(BasicDefineDo::getFieldStatus,1);
+        lambdaQueryWrapper.eq(BasicDefineDo::getFieldStatus, 1);
         //根据定义的排序号进行排序
         lambdaQueryWrapper.orderByAsc(BasicDefineDo::getOrderNo);
         //查询结果
@@ -178,19 +180,19 @@ public class DeviceDataController {
         collect.toArray(fields);
         QueryWrapper<DeviceDataDo> queryWrapper = new QueryWrapper<>();
         queryWrapper.select(fields);
-        queryWrapper.eq("id",id);
+        queryWrapper.eq("id", id);
         Map<String, Object> map = deviceDataService.getMap(queryWrapper);
-        if(CollectionUtils.isEmpty(map)) {
+        if (CollectionUtils.isEmpty(map)) {
             return Result.error("暂无数据查询");
         }
         List<JSONObject> jsonObjectList = new ArrayList<>();
-        for(BasicDefineDo basicDefineDo : list){
+        for (BasicDefineDo basicDefineDo : list) {
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("fieldKey",basicDefineDo.getFieldKey());
-            jsonObject.put("tenantId",basicDefineDo.getTenantId());
-            jsonObject.put("fieldName",basicDefineDo.getFieldName());
-            jsonObject.put("fieldType",basicDefineDo.getFieldType());
-            jsonObject.put("value",map.get(basicDefineDo.getFieldKey()));
+            jsonObject.put("fieldKey", basicDefineDo.getFieldKey());
+            jsonObject.put("tenantId", basicDefineDo.getTenantId());
+            jsonObject.put("fieldName", basicDefineDo.getFieldName());
+            jsonObject.put("fieldType", basicDefineDo.getFieldType());
+            jsonObject.put("value", map.get(basicDefineDo.getFieldKey()));
             jsonObjectList.add(jsonObject);
         }
         return Result.ok(jsonObjectList);
@@ -198,13 +200,14 @@ public class DeviceDataController {
 
     /**
      * 新增设备数据
+     *
      * @param params
      * @return
      */
     @PostMapping("/save")
-    public Result save(@RequestParam Map<String,Object> params) {
-        DeviceDataDo deviceDataDo = ReflectUtil.mapToObject(params,COLUMN_KEY,DeviceDataDo.class);
-        if(null == deviceDataDo) {
+    public Result save(@RequestParam Map<String, Object> params) {
+        DeviceDataDo deviceDataDo = ReflectUtil.mapToObject(params, COLUMN_KEY, DeviceDataDo.class);
+        if (null == deviceDataDo) {
             return Result.error("您的操作有误！");
         }
         int tenantId = 1;
@@ -214,13 +217,14 @@ public class DeviceDataController {
 
     /**
      * 编辑设备数据
+     *
      * @param params
      * @return
      */
     @PostMapping("/edit")
-    public Result edit(@RequestParam Map<String,Object> params) {
-        DeviceDataDo deviceDataDo = ReflectUtil.mapToObject(params, COLUMN_KEY,DeviceDataDo.class);
-        if(null == deviceDataDo || null == deviceDataDo.getId()) {
+    public Result edit(@RequestParam Map<String, Object> params) {
+        DeviceDataDo deviceDataDo = ReflectUtil.mapToObject(params, COLUMN_KEY, DeviceDataDo.class);
+        if (null == deviceDataDo || null == deviceDataDo.getId()) {
             return Result.error("您的操作有误！");
         }
         return Result.ok(deviceDataService.updateById(deviceDataDo));
@@ -228,6 +232,7 @@ public class DeviceDataController {
 
     /**
      * 根据id删除设备数据
+     *
      * @param id
      * @return
      */
