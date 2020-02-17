@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.bora.basic.dal.domain.BasicDefineDo;
+import com.bora.basic.dal.domain.BasicDefineExtentDo;
 import com.bora.basic.dal.domain.DeviceDataDo;
 import com.bora.basic.service.service.IBasicDefineService;
 import com.bora.basic.service.service.IDeviceDataService;
@@ -46,7 +47,6 @@ public class DeviceDataController {
     static {
         COLUMN_KEY.put("id", "id");
         COLUMN_KEY.put("tenant_id", "tenantId");
-        COLUMN_KEY.put("tenant_id", "tenantId");
         COLUMN_KEY.put("dev_code", "dev_code");
         COLUMN_KEY.put("dev_name", "dev_name");
         COLUMN_KEY.put("dev_type", "dev_type");
@@ -80,6 +80,8 @@ public class DeviceDataController {
         wrapper.eq("tenant_id", tenantId);
         wrapper.eq("is_show", 1);
         wrapper.eq("mark", mark);
+        wrapper.orderByAsc("order_no");
+        wrapper.eq("field_status",1);
         //查询租户模板表中需要显示的字段信息，包括字段名、字段中文名等信息
         List<BasicDefineDo> basicDefineList = basicDefineService.list(wrapper);
         //判空，如果为空，则返回“暂无数据”
@@ -95,7 +97,7 @@ public class DeviceDataController {
         List<String> keyToNameOrder = new ArrayList<>();
         for (int i = 0; i < basicDefineList.size(); i++) {
             BasicDefineDo basicDefineDo = basicDefineList.get(i);
-            Map<String, String> fieldName = new HashMap<>();
+            Map<String, String> fieldName = new HashMap<>(1);
             fieldName.put(basicDefineDo.getFieldKey(), basicDefineDo.getFieldName());
             keyToNameOrder.add(basicDefineDo.getFieldKey());
             fieldNameMap.add(fieldName);
@@ -162,40 +164,39 @@ public class DeviceDataController {
     @GetMapping("getDeviceById")
     public Result getDeviceById(@RequestParam("id") Long id) {
         Integer tenantId = 1;
-        //获取字段，并根据对应字段返回
-        LambdaQueryWrapper<BasicDefineDo> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        //功能标识
-        lambdaQueryWrapper.eq(BasicDefineDo::getMark, "设备");
-        //租户
-        lambdaQueryWrapper.eq(BasicDefineDo::getTenantId, tenantId);
-        //只查询未被禁用的
-        lambdaQueryWrapper.eq(BasicDefineDo::getFieldStatus, 1);
-        //根据定义的排序号进行排序
-        lambdaQueryWrapper.orderByAsc(BasicDefineDo::getOrderNo);
-        //查询结果
-        List<BasicDefineDo> list = basicDefineService.list(lambdaQueryWrapper);
-        List<String> collect = list.stream().map(BasicDefineDo::getFieldKey).collect(Collectors.toList());
-        //获取属性名数组
-        String[] fields = new String[collect.size()];
-        collect.toArray(fields);
-        QueryWrapper<DeviceDataDo> queryWrapper = new QueryWrapper<>();
-        queryWrapper.select(fields);
-        queryWrapper.eq("id", id);
-        Map<String, Object> map = deviceDataService.getMap(queryWrapper);
-        if (CollectionUtils.isEmpty(map)) {
-            return Result.error("暂无数据查询");
+        DeviceDataDo deviceDataDo = deviceDataService.getById(id);
+        if(null == deviceDataDo) {
+            return Result.ok("暂无数据！");
         }
-        List<JSONObject> jsonObjectList = new ArrayList<>();
-        for (BasicDefineDo basicDefineDo : list) {
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("fieldKey", basicDefineDo.getFieldKey());
-            jsonObject.put("tenantId", basicDefineDo.getTenantId());
-            jsonObject.put("fieldName", basicDefineDo.getFieldName());
-            jsonObject.put("fieldType", basicDefineDo.getFieldType());
-            jsonObject.put("value", map.get(basicDefineDo.getFieldKey()));
-            jsonObjectList.add(jsonObject);
+        Map<String,List<BasicDefineExtentDo>> markAndTenantId = basicDefineService.getPropertiesByMarkAndTenantId(tenantId, "物料");
+        if(CollectionUtils.isEmpty(markAndTenantId)){
+            return Result.ok("暂无数据！");
         }
-        return Result.ok(jsonObjectList);
+        Map<String, Object> objectMap = ReflectUtil.objectToMap(deviceDataDo);
+        String extInfo = (String) objectMap.get("extInfo");
+        if(extInfo != null){
+            Map<String,Object> mapInfo = JSONObject.parseObject(extInfo,Map.class);
+            objectMap.putAll(mapInfo);
+        }
+        List<JSONObject> list = new ArrayList<>();
+        Set<String> strings = markAndTenantId.keySet();
+        for(String key : strings){
+            List<BasicDefineExtentDo> basicDefineExtentDos = markAndTenantId.get(key);
+            for(BasicDefineExtentDo basicDefineExtentDo : basicDefineExtentDos){
+                String fieldKey = basicDefineExtentDo.getFieldKey();
+                String column = COLUMN_KEY.get(fieldKey);
+                if(objectMap.containsKey(column) || objectMap.containsKey(fieldKey)){
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("fieldKey",fieldKey);
+                    jsonObject.put("fieldName",basicDefineExtentDo.getFieldName());
+                    jsonObject.put("value",objectMap.get(column));
+                    jsonObject.put("extensionDoList",basicDefineExtentDo.getExtensionDoList());
+                    jsonObject.put("fieldType",basicDefineExtentDo.getFieldType());
+                    list.add(jsonObject);
+                }
+            }
+        }
+        return Result.ok(list);
     }
 
     /**
