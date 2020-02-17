@@ -29,8 +29,8 @@ public class GeneratorTest {
         String[] tableName = {"t_extension"};
         String[] tablePrefix = {"t_"};
         try {
-            codeGenerator.generateCode("com.bora.basic", tableName, tablePrefix,
-                    "zhwei", true, false);
+//            codeGenerator.generateCode("com.bora.basic", tableName, tablePrefix,
+//                    "zhwei", true, false);
         } catch (Exception e) {
             e.printStackTrace();
         }

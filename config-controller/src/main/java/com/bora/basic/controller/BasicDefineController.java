@@ -198,4 +198,74 @@ public class BasicDefineController {
         return Result.ok(basicDefineService.getPropertiesByMarkAndTenantId(tenantId,mark));
     }
 
+
+    /**
+     * 查询租户下所有显示和不显示的字段接口
+     */
+    @GetMapping("/getShowAndNotShowProperties")
+    public Result<JSONObject> getShowAndNotShowProperties(@RequestParam("mark") String mark){
+        if(StringUtils.isEmpty(mark)){
+            return Result.error("输入的功能标识符不能为空");
+        }
+        int tenantId = 1;
+        LambdaQueryWrapper<BasicDefineDo> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(BasicDefineDo::getTenantId,tenantId);
+        lambdaQueryWrapper.eq(BasicDefineDo::getFieldStatus,1);
+        lambdaQueryWrapper.eq(BasicDefineDo::getMark,mark);
+
+        List<BasicDefineDo> basicDefineDos = basicDefineService.list(lambdaQueryWrapper);
+        JSONObject jsonObject = new JSONObject();
+        List<BasicDefineDo> showList = new ArrayList<>();
+        List<BasicDefineDo> hiddenList = new ArrayList<>();
+        for(BasicDefineDo basicDefineDo : basicDefineDos){
+            if(basicDefineDo.getIsShow() != null && basicDefineDo.getIsShow().intValue() == 1){
+                showList.add(basicDefineDo);
+                continue;
+            }
+            hiddenList.add(basicDefineDo);
+        }
+        jsonObject.put("showList",showList);
+        jsonObject.put("hiddenList",hiddenList);
+        return Result.ok(jsonObject);
+    }
+
+    /**
+     * 根据字段名称模糊查询
+     * @param fieldName
+     * @return
+     */
+    @GetMapping("/getPropertyByName")
+    public Result<List<BasicDefineDo>> getPropertyByName(@RequestParam("fieldName") String fieldName,
+                                                         @RequestParam("mark")String mark){
+        int tenantId = 1;
+        LambdaQueryWrapper<BasicDefineDo> queryWrapper = new LambdaQueryWrapper();
+        queryWrapper.eq(BasicDefineDo::getFieldStatus,1);
+        queryWrapper.eq(BasicDefineDo::getTenantId,tenantId);
+        queryWrapper.likeRight(BasicDefineDo::getFieldName,fieldName);
+        queryWrapper.eq(BasicDefineDo::getMark,mark);
+
+        return Result.ok(basicDefineService.list(queryWrapper));
+    }
+
+    @PostMapping("/updateShowProperties")
+    public Result updateShowProperties(@RequestParam("showList") String showStr,@RequestParam("hiddenList") String hiddenStr){
+//        LambdaQueryWrapper
+        List<BasicDefineDo> showList = JSONObject.parseObject(showStr,List.class);
+        List<BasicDefineDo> hiddenList = JSONObject.parseObject(hiddenStr,List.class);
+        List<BasicDefineDo> basicDefineDos = new ArrayList<>();
+        if(!CollectionUtils.isEmpty(showList)){
+            basicDefineDos.addAll(showList);
+        }
+
+        if(!CollectionUtils.isEmpty(hiddenList)){
+            basicDefineDos.addAll(hiddenList);
+        }
+        if(CollectionUtils.isEmpty(basicDefineDos)){
+            return Result.error("没有需要更新的数据");
+        }
+//        for()
+//        basicDefineService.update
+        return Result.ok(basicDefineService.updateBatchById(basicDefineDos));
+    }
+
 }

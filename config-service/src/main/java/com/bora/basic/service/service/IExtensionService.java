@@ -5,12 +5,12 @@ import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
  * <p>
- * 服务类
+ *  服务类
  * </p>
  *
  * @author zhwei
- * @since 2020-02-12
+ * @since 2020-02-14
  */
 public interface IExtensionService extends IService<ExtensionDo> {
 
-}
+        }

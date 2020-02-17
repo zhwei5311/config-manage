@@ -67,7 +67,10 @@ public class MaterialDataController {
         }
         //其他限制字段待定
         int tenantId = 1;
+        String username = "admin";
         materialDataDo.setTenantId(tenantId);
+        materialDataDo.setCreateTime(new Date());
+        materialDataDo.setCreator(username);
         return Result.ok(iMaterialDataService.save(materialDataDo));
     }
 
