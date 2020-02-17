@@ -47,18 +47,18 @@ public class DeviceDataController {
     static {
         COLUMN_KEY.put("id", "id");
         COLUMN_KEY.put("tenant_id", "tenantId");
-        COLUMN_KEY.put("dev_code", "dev_code");
-        COLUMN_KEY.put("dev_name", "dev_name");
-        COLUMN_KEY.put("dev_type", "dev_type");
-        COLUMN_KEY.put("dev_status", "dev_status");
-        COLUMN_KEY.put("dev_specify", "dev_specify");
-        COLUMN_KEY.put("dev_model", "dev_model");
+        COLUMN_KEY.put("dev_code", "devCode");
+        COLUMN_KEY.put("dev_name", "devName");
+        COLUMN_KEY.put("dev_type", "devType");
+        COLUMN_KEY.put("dev_status", "devStatus");
+        COLUMN_KEY.put("dev_specify", "devSpecify");
+        COLUMN_KEY.put("dev_model", "devModel");
         COLUMN_KEY.put("workshop", "workshop");
         COLUMN_KEY.put("terminal", "terminal");
         COLUMN_KEY.put("description", "description");
-        COLUMN_KEY.put("create_time", "create_time");
+        COLUMN_KEY.put("create_time", "createTime");
         COLUMN_KEY.put("creator", "creator");
-        COLUMN_KEY.put("update_time", "update_time");
+        COLUMN_KEY.put("update_time", "updateTime");
         COLUMN_KEY.put("updator", "updator");
         COLUMN_KEY.put("extInfo", "extInfo");
     }
@@ -161,7 +161,7 @@ public class DeviceDataController {
      *
      * @Param id
      */
-    @GetMapping("getDeviceById")
+    @GetMapping("/getDeviceById")
     public Result getDeviceById(@RequestParam("id") Long id) {
         Integer tenantId = 1;
         DeviceDataDo deviceDataDo = deviceDataService.getById(id);
@@ -213,6 +213,10 @@ public class DeviceDataController {
         }
         int tenantId = 1;
         deviceDataDo.setTenantId(tenantId);
+        String username = "admin";
+        deviceDataDo.setTenantId(tenantId);
+        deviceDataDo.setCreateTime(new Date());
+        deviceDataDo.setCreator(username);
         return Result.ok(deviceDataService.save(deviceDataDo));
     }
 
@@ -228,6 +232,8 @@ public class DeviceDataController {
         if (null == deviceDataDo || null == deviceDataDo.getId()) {
             return Result.error("您的操作有误！");
         }
+        deviceDataDo.setUpdateTime(new Date());
+        deviceDataDo.setUpdator("admin");
         return Result.ok(deviceDataService.updateById(deviceDataDo));
     }
 

@@ -7,10 +7,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /***
  *Ticket: 
@@ -110,8 +108,9 @@ public class ReflectUtil {
 
 
     private static Object getClassTypeValue(Class<?> typeClass, Object value){
+        System.out.println(typeClass.getName() + "\t" + value);
         if(typeClass == int.class || typeClass == Integer.class  ){
-            if(null == value){
+            if(null == value || "".equals(value)){
                 return 0;
             }else if(value instanceof Integer){
                 return value;
@@ -166,7 +165,10 @@ public class ReflectUtil {
                 return new BigDecimal(0);
             }
             return new BigDecimal(value+"");
-        }else {
+        }else if(typeClass == Date.class){
+                return new Date();
+        }
+        else {
             return typeClass.cast(value);
         }
     }
