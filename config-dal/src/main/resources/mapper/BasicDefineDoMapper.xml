@@ -15,12 +15,12 @@
         <result column="field_attr" property="fieldAttr" />
         <result column="is_show" property="isShow" />
         <result column="order_no" property="orderNo" />
-        <result column="description" property="description" />
+       <!-- <result column="description" property="description" />-->
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, tenant_id, mark, field_key, field_name, field_status, field_type, data_type, field_attr, is_show, order_no, description
+        id, tenant_id, mark, field_key, field_name, field_status, field_type, data_type, field_attr, is_show, order_no
     </sql>
 
 </mapper>

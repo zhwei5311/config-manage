@@ -250,8 +250,8 @@ public class BasicDefineController {
     @PostMapping("/updateShowProperties")
     public Result updateShowProperties(@RequestParam("showList") String showStr,@RequestParam("hiddenList") String hiddenStr){
 //        LambdaQueryWrapper
-        List<BasicDefineDo> showList = JSONObject.parseObject(showStr,List.class);
-        List<BasicDefineDo> hiddenList = JSONObject.parseObject(hiddenStr,List.class);
+        List<BasicDefineDo> showList = JSONObject.parseArray(showStr,BasicDefineDo.class);
+        List<BasicDefineDo> hiddenList = JSONObject.parseArray(hiddenStr,BasicDefineDo.class);
         List<BasicDefineDo> basicDefineDos = new ArrayList<>();
         if(!CollectionUtils.isEmpty(showList)){
             basicDefineDos.addAll(showList);
@@ -263,9 +263,18 @@ public class BasicDefineController {
         if(CollectionUtils.isEmpty(basicDefineDos)){
             return Result.error("没有需要更新的数据");
         }
-//        for()
-//        basicDefineService.update
-        return Result.ok(basicDefineService.updateBatchById(basicDefineDos));
+
+        boolean flag = false;
+        try{
+            flag = basicDefineService.updateBatchById(basicDefineDos);
+        }catch (Exception e){
+            e.printStackTrace();
+
+        }
+        if(flag) {
+            return Result.ok();
+        }
+        return Result.error("更新失败");
     }
 
 }

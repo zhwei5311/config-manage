@@ -83,7 +83,7 @@ public class BasicDefineServiceImpl extends ServiceImpl<BasicDefineMapper, Basic
             //字段排序号
             basicDefineExtentDo.setOrderNo(basicDefineDo.getOrderNo());
             //备注
-            basicDefineExtentDo.setDescription(basicDefineDo.getDescription());
+            /*basicDefineExtentDo.setDescription(basicDefineDo.getDescription());*/
             if(basicDefineDo.getFieldType().equals("单选")){
                 LambdaQueryWrapper<ExtensionDo> extensionDoLambdaQueryWrapper = new LambdaQueryWrapper<>();
                 extensionDoLambdaQueryWrapper.eq(ExtensionDo::getTenantId,tenantId);

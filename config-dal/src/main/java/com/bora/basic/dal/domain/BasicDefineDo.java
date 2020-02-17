@@ -65,8 +65,9 @@ public class BasicDefineDo implements Serializable {
     @ApiModelProperty(value = "字段排序号")
     private Integer orderNo;
 
-    @ApiModelProperty(value = "备注")
-    private String description;
+
+   /* @ApiModelProperty(value = "备注")
+    private String description;*/
 
 
 
