@@ -212,6 +212,7 @@ public class BasicDefineController {
         lambdaQueryWrapper.eq(BasicDefineDo::getTenantId,tenantId);
         lambdaQueryWrapper.eq(BasicDefineDo::getFieldStatus,1);
         lambdaQueryWrapper.eq(BasicDefineDo::getMark,mark);
+        lambdaQueryWrapper.orderByAsc(BasicDefineDo::getOrderNo);
 
         List<BasicDefineDo> basicDefineDos = basicDefineService.list(lambdaQueryWrapper);
         JSONObject jsonObject = new JSONObject();
@@ -249,12 +250,16 @@ public class BasicDefineController {
 
     @PostMapping("/updateShowProperties")
     public Result updateShowProperties(@RequestParam("showList") String showStr,@RequestParam("hiddenList") String hiddenStr){
-//        LambdaQueryWrapper
         List<BasicDefineDo> showList = JSONObject.parseArray(showStr,BasicDefineDo.class);
         List<BasicDefineDo> hiddenList = JSONObject.parseArray(hiddenStr,BasicDefineDo.class);
         List<BasicDefineDo> basicDefineDos = new ArrayList<>();
         if(!CollectionUtils.isEmpty(showList)){
-            basicDefineDos.addAll(showList);
+            //按照传递过来的顺序进行排序
+            for(int i = 0; i < showList.size(); i++){
+                BasicDefineDo basicDefineDo = showList.get(i);
+                basicDefineDo.setOrderNo((i + 1));
+                basicDefineDos.add(basicDefineDo);
+            }
         }
 
         if(!CollectionUtils.isEmpty(hiddenList)){

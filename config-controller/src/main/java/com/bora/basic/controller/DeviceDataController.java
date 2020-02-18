@@ -168,7 +168,7 @@ public class DeviceDataController {
         if(null == deviceDataDo) {
             return Result.ok("暂无数据！");
         }
-        Map<String,List<BasicDefineExtentDo>> markAndTenantId = basicDefineService.getPropertiesByMarkAndTenantId(tenantId, "物料");
+        Map<String,List<BasicDefineExtentDo>> markAndTenantId = basicDefineService.getPropertiesByMarkAndTenantId(tenantId, "设备");
         if(CollectionUtils.isEmpty(markAndTenantId)){
             return Result.ok("暂无数据！");
         }
