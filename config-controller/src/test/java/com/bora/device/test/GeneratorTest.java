@@ -26,11 +26,11 @@ public class GeneratorTest {
         jsonObject.put("username",druidDataSource.getUsername());
         jsonObject.put("password",druidDataSource.getPassword());
         CodeGenerator codeGenerator = new CodeGenerator(jsonObject);
-        String[] tableName = {"t_extension"};
+        String[] tableName = {"t_production_data"};
         String[] tablePrefix = {"t_"};
         try {
-//            codeGenerator.generateCode("com.bora.basic", tableName, tablePrefix,
-//                    "zhwei", true, false);
+            codeGenerator.generateCode("com.bora.basic", tableName, tablePrefix,
+                    "chengyankai", true, false);
         } catch (Exception e) {
             e.printStackTrace();
         }
